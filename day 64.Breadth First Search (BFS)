@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int vertex;
+    struct Node* next;
+};
+
+// Create new node
+struct Node* createNode(int v) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->vertex = v;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Add edge (undirected graph)
+void addEdge(struct Node* adj[], int u, int v) {
+    struct Node* newNode = createNode(v);
+    newNode->next = adj[u];
+    adj[u] = newNode;
+
+    newNode = createNode(u);
+    newNode->next = adj[v];
+    adj[v] = newNode;
+}
+
+// BFS function
+void BFS(struct Node* adj[], int n, int s) {
+    int visited[n];
+    for(int i = 0; i < n; i++)
+        visited[i] = 0;
+
+    int queue[n];
+    int front = 0, rear = 0;
+
+    // start from source
+    queue[rear++] = s;
+    visited[s] = 1;
+
+    while(front < rear) {
+        int curr = queue[front++];
+        printf("%d ", curr);
+
+        struct Node* temp = adj[curr];
+
+        while(temp != NULL) {
+            int v = temp->vertex;
+
+            if(!visited[v]) {
+                queue[rear++] = v;
+                visited[v] = 1;
+            }
+
+            temp = temp->next;
+        }
+    }
+}
+
+int main() {
+    int n, m, s;
+
+    scanf("%d", &n);   // vertices
+    scanf("%d", &m);   // edges
+
+    struct Node* adj[n];
+
+    for(int i = 0; i < n; i++)
+        adj[i] = NULL;
+
+    // input edges
+    for(int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        addEdge(adj, u, v);
+    }
+
+    scanf("%d", &s);   // source vertex
+
+    BFS(adj, n, s);
+
+    return 0;
+}
