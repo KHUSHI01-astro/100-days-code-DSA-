@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+struct Node {
+    int v, w;
+    struct Node* next;
+};
+
+struct Node* createNode(int v, int w) {
+    struct Node* n = (struct Node*)malloc(sizeof(struct Node));
+    n->v = v;
+    n->w = w;
+    n->next = NULL;
+    return n;
+}
+
+void addEdge(struct Node* adj[], int u, int v, int w) {
+    struct Node* n = createNode(v, w);
+    n->next = adj[u];
+    adj[u] = n;
+
+    n = createNode(u, w);
+    n->next = adj[v];
+    adj[v] = n;
+}
+
+int extractMin(int dist[], int visited[], int n) {
+    int min = INT_MAX, idx = -1;
+
+    for(int i = 0; i < n; i++) {
+        if(!visited[i] && dist[i] < min) {
+            min = dist[i];
+            idx = i;
+        }
+    }
+
+    return idx;
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    struct Node* adj[n];
+    for(int i = 0; i < n; i++) adj[i] = NULL;
+
+    for(int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        addEdge(adj, u, v, w);
+    }
+
+    int src;
+    scanf("%d", &src);
+
+    int dist[n], visited[n];
+
+    for(int i = 0; i < n; i++) {
+        dist[i] = INT_MAX;
+        visited[i] = 0;
+    }
+
+    dist[src] = 0;
+
+    for(int i = 0; i < n - 1; i++) {
+        int u = extractMin(dist, visited, n);
+        if(u == -1) break;
+
+        visited[u] = 1;
+
+        struct Node* temp = adj[u];
+        while(temp != NULL) {
+            int v = temp->v;
+            int w = temp->w;
+
+            if(!visited[v] && dist[u] != INT_MAX && dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+            }
+
+            temp = temp->next;
+        }
+    }
+
+    for(int i = 0; i < n; i++) {
+        printf("%d ", dist[i]);
+    }
+
+    return 0;
+}
