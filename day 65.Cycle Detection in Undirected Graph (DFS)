@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int vertex;
+    struct Node* next;
+};
+
+// Create node
+struct Node* createNode(int v) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->vertex = v;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Add edge (undirected graph)
+void addEdge(struct Node* adj[], int u, int v) {
+    struct Node* node = createNode(v);
+    node->next = adj[u];
+    adj[u] = node;
+
+    node = createNode(u);
+    node->next = adj[v];
+    adj[v] = node;
+}
+
+// DFS cycle detection
+int dfsCycle(struct Node* adj[], int v, int visited[], int parent) {
+    visited[v] = 1;
+
+    struct Node* temp = adj[v];
+
+    while(temp != NULL) {
+        int u = temp->vertex;
+
+        // If not visited, go deeper
+        if(!visited[u]) {
+            if(dfsCycle(adj, u, visited, v))
+                return 1;
+        }
+        // If visited and not parent → cycle found
+        else if(u != parent) {
+            return 1;
+        }
+
+        temp = temp->next;
+    }
+
+    return 0;
+}
+
+int isCycle(struct Node* adj[], int n) {
+    int visited[n];
+
+    for(int i = 0; i < n; i++)
+        visited[i] = 0;
+
+    for(int i = 0; i < n; i++) {
+        if(!visited[i]) {
+            if(dfsCycle(adj, i, visited, -1))
+                return 1;
+        }
+    }
+
+    return 0;
+}
+
+int main() {
+    int n, m;
+
+    scanf("%d", &n);
+    scanf("%d", &m);
+
+    struct Node* adj[n];
+
+    for(int i = 0; i < n; i++)
+        adj[i] = NULL;
+
+    for(int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        addEdge(adj, u, v);
+    }
+
+    if(isCycle(adj, n))
+        printf("YES");
+    else
+        printf("NO");
+
+    return 0;
+}
