@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int v;
+    struct Node* next;
+};
+
+struct Node* createNode(int v) {
+    struct Node* n = (struct Node*)malloc(sizeof(struct Node));
+    n->v = v;
+    n->next = NULL;
+    return n;
+}
+
+void addEdge(struct Node* adj[], int u, int v) {
+    struct Node* n = createNode(v);
+    n->next = adj[u];
+    adj[u] = n;
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    struct Node* adj[n];
+    for(int i = 0; i < n; i++) adj[i] = NULL;
+
+    int indeg[n];
+    for(int i = 0; i < n; i++) indeg[i] = 0;
+
+    for(int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        addEdge(adj, u, v);
+        indeg[v]++;
+    }
+
+    int q[n], f = 0, r = 0;
+
+    for(int i = 0; i < n; i++) {
+        if(indeg[i] == 0)
+            q[r++] = i;
+    }
+
+    int count = 0;
+
+    while(f < r) {
+        int u = q[f++];
+        printf("%d ", u);
+        count++;
+
+        struct Node* temp = adj[u];
+        while(temp != NULL) {
+            indeg[temp->v]--;
+            if(indeg[temp->v] == 0)
+                q[r++] = temp->v;
+            temp = temp->next;
+        }
+    }
+
+    return 0;
+}
